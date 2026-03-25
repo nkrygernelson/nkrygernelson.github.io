@@ -8,4 +8,4 @@ I am a software developer interested in building cool things. Welcome to my pers
 * 📫 How to reach me: [nikry@dtu.dk](mailto:nikry@dtu.dk)
 
 ## Projects
-Check out my work on my [GitHub Profile](https://github.com/nkrygernelson).
+Want to see my code in action? **[Check out my Projects page here!](./projects.md)**
