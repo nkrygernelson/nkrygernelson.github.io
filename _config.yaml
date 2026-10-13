@@ -4,3 +4,13 @@ theme: jekyll-theme-minimal
 
 kramdown:
   math_engine: mathjax
+
+nav:
+  - title: Home
+    url: /
+  - title: Diffusion
+    url: /diffusion.html
+  - title: Projects
+    url: /projects.html
+  - title: GitHub
+    url: https://github.com/nkrygernelson

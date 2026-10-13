@@ -1,9 +1,11 @@
 ---
 layout: default
-title: "Diffusion Crash Course — Part 1: DDPM"
+title: "Diffusion Crash Course, Part 1: DDPM"
 ---
 
-# Diffusion Crash Course — Part 1: DDPM
+# Part 1: DDPM
+
+*Part 1 of [A Diffusion Crash Course](./diffusion.html).*
 
 This is a crash course in diffusion: the fundamental math and concepts behind diffusion models. The goal is to present the fundamental mathematical framework of modern diffusion models. Topics covered: DDPM, SDEs and Score-Based diffusion, Fokker-Planck equation and Flow Matching.
 
@@ -31,7 +33,7 @@ To bring this down to a tractable number of dimensions, consider a 2D Gaussian-m
 
 ### The forward process
 
-A technical introduction to diffusion usually leads with DDPM (Denoising Diffusion Probabilistic Models), because it's historically important and conceptually lighter than what we'll build up to later. DDPM has two key components — the two stages most people list if you ask how diffusion works:
+A technical introduction to diffusion usually leads with DDPM (Denoising Diffusion Probabilistic Models), because it's historically important and conceptually lighter than what we'll build up to later. DDPM has two key components, the two stages most people list if you ask how diffusion works:
 
 1. **Forward process.** A Markov chain of fixed forward transition kernels $$p(x_i\mid x_{i-1})$$. The data evolves into an isotropic Gaussian distribution. This process is fixed, not learned.
 2. **Reverse / generative process (learnable).** A neural network learns to reverse the noise corruption through a parameterized distribution $$p_\theta(x_{i-1}\mid x_i)$$. Starting from pure noise, the model iteratively denoises it to generate realistic samples.
@@ -40,7 +42,7 @@ A technical introduction to diffusion usually leads with DDPM (Denoising Diffusi
 
 *Figure: DDPM forwards and backwards process visualized. Diagram taken from "The Principles of Diffusion Models."*
 
-The first is the forward process. We take a data sample — say, an MNIST-style digit — and over a number of steps we add Gaussian noise, so the image gets grainier at every iteration, until all information is destroyed and we're left with pure noise. This is a stochastic process: a Markov chain, where reaching the next step requires only the previous step. We do this by applying fixed forward transition kernels, and the goal is to carry the original data distribution to pure Gaussian noise:
+The first is the forward process. We take a data sample (say, an MNIST-style digit) and over a number of steps we add Gaussian noise, so the image gets grainier at every iteration, until all information is destroyed and we're left with pure noise. This is a stochastic process: a Markov chain, where reaching the next step requires only the previous step. We do this by applying fixed forward transition kernels, and the goal is to carry the original data distribution to pure Gaussian noise:
 
 $$
 p(x_i \mid x_{i-1}) = \mathcal{N}\!\left(x_i;\, \sqrt{1-\beta_i^2}\, x_{i-1},\; \beta_i^2 I\right).
@@ -59,7 +61,7 @@ $$
 
 and writing $$\alpha_i := \sqrt{1-\beta_i^2}$$ this is just $$x_i = \alpha_i x_{i-1} + \beta_i \epsilon$$.
 
-Applying these kernels one step at a time all the way to noise is inconvenient. It's much nicer to have a *simulation-free* way to sample — meaning we don't have to simulate the successive application of kernels. We can define a kernel that, given the index $$i$$ we care about, lets us sample $$x_i$$ directly. Unrolling the recursion equation (2) one step,
+Applying these kernels one step at a time all the way to noise is inconvenient. It's much nicer to have a *simulation-free* way to sample, meaning we don't have to simulate the successive application of kernels. We can define a kernel that, given the index $$i$$ we care about, lets us sample $$x_i$$ directly. Unrolling the recursion equation (2) one step,
 
 $$
 \begin{aligned}
@@ -103,9 +105,9 @@ p(x_L \mid x_0) \to \mathcal{N}(0, I)
 \qquad \text{as } L \to \infty \quad(\text{since } \bar{\alpha}_i \to 0).
 $$
 
-So we have effectively brought the data to noise — which is the whole point.
+So we have effectively brought the data to noise, which is the whole point.
 
-Returning to the blobs (using $$t$$ to track time instead of $$i$$): we start with the blob distribution, evolve it under some schedule, and in the end we have something that looks like total noise — a 2D normal distribution.
+Returning to the blobs (using $$t$$ to track time instead of $$i$$): we start with the blob distribution, evolve it under some schedule, and in the end we have something that looks like total noise: a 2D normal distribution.
 
 ![DDPM forward process](/imgs/forward.png)
 
@@ -119,13 +121,13 @@ $$
 \mathcal{L}=\mathbb{E}_{p_i(x_i)}\!\left[\, D_{\mathrm{KL}}\!\big(p(x_{i-1}\mid x_i)\,\|\,p_\theta(x_{i-1}\mid x_i)\big) \right].
 $$
 
-It seems fine, but it isn't — because we don't actually know the true reverse transition kernel. Applying Bayes' theorem, we can rewrite the reverse kernel in terms of the forward kernel, which we do know:
+It seems fine, but it isn't, because we don't actually know the true reverse transition kernel. Applying Bayes' theorem, we can rewrite the reverse kernel in terms of the forward kernel, which we do know:
 
 $$
 p(x_{i-1}\mid x_i) = p(x_i\mid x_{i-1})\,\frac{p_{i-1}(x_{i-1})}{p_i(x_i)}.
 $$
 
-But the denominator contains a classic intractable term: an integral over all clean samples — the entire $$p_{\text{data}}$$ distribution,
+But the denominator contains a classic intractable term: an integral over all clean samples, the entire $$p_{\text{data}}$$ distribution,
 
 $$
 p_i(x_i) = \underbrace{\int p(x_i\mid x_0)\, p_{\text{data}}(x_0)\, dx_0}_{\text{hard to approximate}},
@@ -135,7 +137,7 @@ and similarly for $$p_{i-1}(x_{i-1})$$. That makes it very hard to work with.
 
 ### Conditioning on the clean sample
 
-Here's the trick — and you'll see it again in this series: we condition the reverse transition kernel on a clean sample $$x_0$$. The moment we do this, things become tractable. Rewriting with Bayes' theorem, the term that was an unconditional distribution becomes a conditional one:
+Here's the trick, and you'll see it again in this series: we condition the reverse transition kernel on a clean sample $$x_0$$. The moment we do this, things become tractable. Rewriting with Bayes' theorem, the term that was an unconditional distribution becomes a conditional one:
 
 $$
 p(x_{i-1}\mid x_i,x_0)
@@ -150,7 +152,7 @@ and we know $$x_i$$ given $$x_0$$ because we have the forward process. The same 
 
 Conditioning gives us a tractable reverse transition kernel.
 
-But can we get away with conditioning on $$x_0$$? Yes — and here's why. We can write a new conditional learning objective: the KL divergence between the reverse transition kernel conditioned on a clean $$x_0$$ (the target the model learns toward) and what the model has learned. Now that $$x_0$$ appears in the objective, we take the expectation over the samples available in our dataset — samples from $$p_{\text{data}}$$ — and from each clean sample $$x_0$$, for a given $$i$$, we produce the needed samples and evaluate the term. The remarkable part is that this conditional objective equals the original unconditional objective up to a constant $$C$$:
+But can we get away with conditioning on $$x_0$$? Yes, and here's why. We can write a new conditional learning objective: the KL divergence between the reverse transition kernel conditioned on a clean $$x_0$$ (the target the model learns toward) and what the model has learned. Now that $$x_0$$ appears in the objective, we take the expectation over the samples available in our dataset (samples from $$p_{\text{data}}$$) and from each clean sample $$x_0$$, for a given $$i$$, we produce the needed samples and evaluate the term. The remarkable part is that this conditional objective equals the original unconditional objective up to a constant $$C$$:
 
 $$
 \mathbb{E}_{p_i(x_i)}\!\left[D_{\mathrm{KL}}\!\big(p(x_{i-1}\mid x_i)\,\|\,p_\theta(x_{i-1}\mid x_i)\big)\right]
@@ -212,7 +214,7 @@ $$
 \!\left[ \left\| \mu_\phi(x_i, i) - \mu(x_i, x_0, i) \right\|_2^2 \right].
 $$
 
-We can rewrite this in two different but equivalent ways, in which the model predicts different things: a loss where the model predicts the noise at each step, and one where it predicts the clean target at each step. Both come from rewriting the same expression — two parametrizations of the same problem. When generating, we can either predict the noise at each step or predict the clean sample at each step, and the two are equivalent.
+We can rewrite this in two different but equivalent ways, in which the model predicts different things: a loss where the model predicts the noise at each step, and one where it predicts the clean target at each step. Both come from rewriting the same expression: two parametrizations of the same problem. When generating, we can either predict the noise at each step or predict the clean sample at each step, and the two are equivalent.
 
 Finally, sampling: start from Gaussian noise and run from $$L$$ down to $$t = 0$$. The points we generate look a lot like the correct blob distribution.
 
@@ -227,6 +229,10 @@ Finally, sampling: start from Gaussian noise and run from $$L$$ down to $$t = 0$
 That was a lot, so here's where we are. We defined the problem of diffusion: learn the underlying probability distribution of a dataset so that we can generate new samples. We do this in two stages, and along the way we established a handful of ideas that carry over to every other view of diffusion:
 
 - **A fixed forward path** through the latents $$x_i$$. It is *simulation-free*: any latent can be written directly in terms of $$x_0$$, a noise $$\epsilon$$, and the schedule, $$x_i = \bar{\alpha}_i x_0 + \sqrt{1-\bar{\alpha}_i^2}\,\epsilon$$, without applying the kernel step by step.
-- **Conditioning on $$x_0$$**, which makes the target — and hence the problem — tractable. This defines everything and gives us something we can actually optimize.
+- **Conditioning on $$x_0$$**, which makes the target (and hence the problem) tractable. This defines everything and gives us something we can actually optimize.
 - **A conditional training objective that is gradient-equivalent** to the unconditional one (equal up to a constant $$C$$).
 - The minimizer of the original loss satisfies equation (4), i.e. $$p^\ast(x_{i-1}\mid x_i)$$ is the average over all $$x_0$$ of the conditional reverse transition kernel; the minimizers of the conditional and unconditional objectives are the same.
+
+---
+
+[Series index](./diffusion.html) · [Part 2: Score and SDEs ➡](./diffpart2.html)

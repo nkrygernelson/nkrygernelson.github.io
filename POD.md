@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "POD — a modular diffusion research codebase"
+title: "POD: a modular diffusion research codebase"
 ---
 
 # POD
@@ -68,8 +68,8 @@ it warns.
 ## The central abstraction: parameterizations
 
 This is the part of the codebase I'd point at first. A diffusion network can be
-trained to predict any of several quantities — the noise, the clean sample, the
-score, or the velocity — and every sampler needs some specific one of them.
+trained to predict any of several quantities (the noise, the clean sample, the
+score, or the velocity) and every sampler needs some specific one of them.
 Writing four independent classes means four places to update every time you add
 a feature.
 
@@ -136,7 +136,7 @@ $$\det$$, so it degrades wherever $$\det \to 0$$. Rather than hide that, the
 repo ships a `singularity` report that plots $$1/|\det|$$ and the target
 magnitude $$\max(|a|,|b|)$$ over the time grid for each parameterization, so you
 can *see* where a given choice blows up before blaming the model. It depends
-only on the schedule and the parameterization — not the weights — so it's a
+only on the schedule and the parameterization, not the weights, so it's a
 static sanity check.
 
 ## Two clocks: schedule time and network time
@@ -148,7 +148,7 @@ at $$t$$, while the network and the sampling grid live in $$u$$.
 
 The default is log-SNR time, $$u = 2(\log \alpha_t - \log \sigma_t)$$, inverted
 by $$t = \sigma(-u/2)$$. This matters because uniform spacing in $$t$$ is not
-uniform in difficulty — log-SNR spacing concentrates steps where the signal-to-noise
+uniform in difficulty: log-SNR spacing concentrates steps where the signal-to-noise
 ratio is actually changing. Because `u_bounds` is the single source of truth for
 the usable range, the training time distribution and the sampler's grid
 automatically cover the same support, buffered inward by `eps` to stay off the
@@ -158,8 +158,8 @@ singular endpoints.
 
 <pre class="mermaid">
 flowchart TB
-  TDS["t_distribution.sample()"] --> T["t — schedule coordinate"]
-  TDS --> U["u — network coordinate"]
+  TDS["t_distribution.sample()"] --> T["t (schedule coordinate)"]
+  TDS --> U["u (network coordinate)"]
 
   X0["x_0 from DataLoader"] --> FS
   NZ["noise: fresh N(0,I)<br/>or a curated partner x_1"] --> FS
@@ -189,26 +189,26 @@ compare across runs.
 
 Three training procedures share this loop behind one interface:
 
-- **standard** — plain denoising regression.
-- **cfg** — classifier-free guidance. Labels are randomly replaced by a null
+- **standard**: plain denoising regression.
+- **cfg**: classifier-free guidance. Labels are randomly replaced by a null
   token (`num_classes` is used as the null index) with probability `p_uncond`,
   so one network learns both the conditional and unconditional model. At
   sampling time a `GuidedModel` wrapper runs both passes per step and returns
   $$m_\text{uncond} + w\,(m_\text{cond} - m_\text{uncond})$$.
-- **reflow** — straightens the transport map, below.
+- **reflow**: straightens the transport map, below.
 
 ## Reflow
 
 Reflow retrains on *coupled* noise/data pairs instead of independently sampled
 noise, which straightens the ODE trajectories and makes few-step sampling
 viable. The pairs come from running the teacher's own probability-flow ODE
-backwards — the same Euler solver, with the time grid flipped:
+backwards, using the same Euler solver with the time grid flipped:
 
 <pre class="mermaid">
 flowchart LR
-  DATA["x_0 — real data"] --> REV
+  DATA["x_0 (real data)"] --> REV
   TCH["teacher<br/>standard-trained or loaded"] --> REV["EulerSolver, flipped time grid<br/>integrate PF-ODE data → noise"]
-  REV --> X1["x_1 — the noise this<br/>teacher maps x_0 to"]
+  REV --> X1["x_1 (the noise this<br/>teacher maps x_0 to)"]
   DATA --> PAIR
   X1 --> PAIR["TensorDataset(x_0, x_1)"]
   PAIR --> STU["student: same loss, but<br/>noise := x_1 instead of randn"]
@@ -216,7 +216,7 @@ flowchart LR
   PROMOTE -.-> REV
 </pre>
 
-Only `ReflowProc.training_loss` differs from the standard one — it passes the
+Only `ReflowProc.training_loss` differs from the standard one: it passes the
 paired `x_1` into the existing `training_loss` as the noise argument, rather
 than letting it sample fresh noise. Everything downstream is unchanged.
 
@@ -228,18 +228,18 @@ any trained parameterization:
 | Solver | Uses | Notes |
 |---|---|---|
 | **Euler** | `pfode` | Deterministic ODE integration; also used in reverse to build reflow pairs. |
-| **Euler–Maruyama** | `rev_sde` | Stochastic; noise scale from `schedule.gamma(t)`, with the final step taken noise-free. |
+| **Euler-Maruyama** | `rev_sde` | Stochastic; noise scale from `schedule.gamma(t)`, with the final step taken noise-free. |
 | **DDIM** | `to_x_0` + `to_noise` | Re-noises directly to the next time level: $$x_t = \alpha_t \hat{x}_0 + \sigma_t \hat{\epsilon}$$. |
-| **DEIS** | `to_noise` | Multistep exponential integrator. Keeps a buffer of past noise predictions and weights them by Lagrange-polynomial coefficients computed with Gauss–Legendre quadrature. |
+| **DEIS** | `to_noise` | Multistep exponential integrator. Keeps a buffer of past noise predictions and weights them by Lagrange-polynomial coefficients computed with Gauss-Legendre quadrature. |
 
 ## Data
 
 Two 2D targets, both standardized to unit variance so they match the
 standard-normal prior:
 
-- **blobs** — a Gaussian mixture via scikit-learn, with labels (so it's the one
+- **blobs**: a Gaussian mixture via scikit-learn, with labels (so it's the one
   used for classifier-free guidance).
-- **tree** — the 2D fractal mixture from NVIDIA's *"Guiding a Diffusion Model
+- **tree**: the 2D fractal mixture from NVIDIA's *"Guiding a Diffusion Model
   with a Bad Version of Itself"*, which has exact ground-truth density and score.
   Useful precisely because you can check against truth rather than eyeballing a
   scatter plot.

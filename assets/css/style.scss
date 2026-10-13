@@ -1,0 +1,85 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+/* Replace the theme's fixed 270px sidebar with a full-width top bar and a
+   wider content column. The theme floats header/section/footer and pins the
+   header with position:fixed; everything below undoes that at all widths. */
+
+/* div.wrapper, not .wrapper: the theme's own media query uses div.wrapper and
+   would otherwise win on specificity below 960px. */
+div.wrapper {
+  width: auto;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+header,
+section,
+footer {
+  width: auto;
+  float: none;
+  position: static;
+}
+
+header.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 20px;
+  padding: 0 0 12px;
+  margin: 0 0 28px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+header.topbar .sitename {
+  font-size: 18px;
+  font-weight: 700;
+  color: #222;
+}
+
+header.topbar .sitename:hover {
+  color: #069;
+}
+
+header.topbar .sitenav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-left: auto;
+  font-size: 14px;
+}
+
+section {
+  border: 0;
+  padding: 0 0 40px;
+  margin: 0;
+}
+
+footer {
+  border-top: 1px solid #e5e5e5;
+  padding-top: 12px;
+}
+
+/* Wide math and diagrams scroll inside their own box rather than the page. */
+section > p > .MathJax,
+mjx-container[display="true"] {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media screen and (max-width: 640px) {
+  body {
+    padding: 20px;
+  }
+  header.topbar .sitenav {
+    margin-left: 0;
+  }
+}
