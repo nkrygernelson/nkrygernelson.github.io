@@ -25,13 +25,12 @@ Start at [the series index](./diffusion.html).
 
 ## Projects
 
-**[POD](./POD.html)** is a modular diffusion research codebase in PyTorch and
-Hydra, where the schedule, prediction target, time coordinate and sampler are
-all swappable components.
-
-**[FETT](./FETT.html)** is the multi-fidelity band gap model I built for a paper
-on metal phosphosulfides with colleagues at DTU. It translates cheap DFT band
-gaps into experimental estimates from composition alone.
+- **[POD: a modular diffusion research codebase](./POD.html)**: the schedule,
+  prediction target, time coordinate and sampler are all swappable components.
+  See the [MNIST samples](./POD.html#mnist-samples).
+- **[FETT: translating DFT band gaps to experiment](./FETT.html)**: the
+  multi-fidelity band gap model I built for a paper on metal phosphosulfides
+  with colleagues at DTU.
 
 See [all projects](./projects.html).
 
