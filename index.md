@@ -29,6 +29,10 @@ Start at [the series index](./diffusion.html).
 Hydra, where the schedule, prediction target, time coordinate and sampler are
 all swappable components.
 
+**[FETT](./FETT.html)** is the multi-fidelity band gap model I built for a paper
+on metal phosphosulfides with colleagues at DTU. It translates cheap DFT band
+gaps into experimental estimates from composition alone.
+
 See [all projects](./projects.html).
 
 ## Elsewhere
