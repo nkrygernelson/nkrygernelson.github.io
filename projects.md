@@ -22,6 +22,19 @@ guidance and reflow.
 
 ---
 
+### 2. [FETT: translating DFT band gaps to experiment](./FETT.html)
+
+The multi-fidelity machine learning model I built for
+[AI-enhanced discovery and accelerated synthesis of metal phosphosulfides](https://arxiv.org/abs/2601.16693)
+(Sanz Rodrigo, Kryger-Nelson et al.). A transformer over element embeddings
+learns band gaps at seven levels of theory, and a small translation layer turns a
+cheap PBEsol band gap into an experimental estimate from composition alone
+(0.168 eV MAE).
+
+*Python, PyTorch Lightning, Hydra* · **[Read more](./FETT.html)** · **[Source on GitHub](https://github.com/nkrygernelson/FETT)**
+
+---
+
 More projects to come.
 
 ---

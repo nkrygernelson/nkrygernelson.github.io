@@ -95,6 +95,24 @@ The training procedures only change what goes into it:
 
 <!-- TODO: anything you want to add about reflow results. -->
 
+## MNIST samples
+
+A class-conditional U-Net trained on MNIST with velocity prediction, log-SNR
+time and classifier-free guidance. Samples below are from epoch 275. Each column
+is one digit class, sampled with DEIS in 100 steps:
+
+```bash
+python main.py experiment=mnist trainer.epochs=300 solver_steps=100
+```
+
+<img src="imgs/pod_mnist_samples.png" alt="Generated MNIST digits, ten per class" width="420" style="image-rendering: pixelated;">
+
+Same noise, same class, increasing guidance scale $$w$$. At $$w = 0$$ the model
+is unconditional; as $$w$$ grows the samples commit harder to the class and
+become thicker and more uniform:
+
+![Classifier-free guidance on MNIST](imgs/pod_mnist_guidance.png)
+
 ## Status and next steps
 
 The repo trains, samples, and writes diagnostic figures to a per-run output
